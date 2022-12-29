@@ -19,7 +19,9 @@ well as the Python wrapper code.
 .. code-block:: bash
 
     pip install synspec
-
+ 
+*NOTE* that this will take a few minutes because it will download large linelist files and convert them from gzipped ASCII to binary format.
+    
 Fortran code
 ------------
     

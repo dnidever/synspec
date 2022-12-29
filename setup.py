@@ -87,7 +87,7 @@ if 'install' in sys.argv or 'develop' in sys.argv or 'bdist_wheel' in sys.argv:
     compilesynspec()
     
 setup(name='synspec',
-      version='1.0.2',
+      version='1.0.3',
       description='Synspec spectral synthesis code and python wrapper',
       author='David Nidever',
       author_email='dnidever@montana.edu',

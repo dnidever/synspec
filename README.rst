@@ -3,7 +3,7 @@ Synspec
 
 This is a redistribution of the `Synspec <http://tlusty.oca.eu/Synspec49/synspec.html>`_
 synthesis software by Ivan Hubeny and Thierry Lanz from Carlos Allende-Prieto's `synple <https://github.com/callendeprieto/synple>`_
-package  as well as my own python wrapper code.
+package as well as python wrapper code.
 
 
 Authors

@@ -12,7 +12,7 @@ Introduction
 |synspec| is a generical stellar spectral synthesis package that can be run from python.  It's essentially
 a redistribution of the `Synspec <http://tlusty.oca.eu/Synspec49/synspec.html>`_
 synthesis software by Ivan Hubeny and Thierry Lanz from Carlos Allende-Prieto's `synple <https://github.com/callendeprieto/synple>`_
-package.  There is also a Python wrapper/driver based on the ``synple`` package and some code from Jon Holtzman in the
+package.  There is also a Python wrapper/driver based on the ``synple`` package and some code from Jon Holtzman
 in the `APOGEE package <https://github.com/sdss/apogee>`_.  The setup.py file has also been modified to
 automatically compile the Fortran code and copy them to the user's python scripts directory.  This reused code written by
 Andy Casey in his `moog package <https://github.com/andycasey/moog>`_.
@@ -31,11 +31,11 @@ and elemental abundances that you want to run.
 
 1) Model Atmospheres
 
-   Synspec can read Kurucz/ATLAS or MARCS model atmospheres.  See pages 12-17 in the `MOOG manual <_static/syn43guide.pdf>`_ for the format and examples.
+   Synspec can read TLUSTY, Kurucz/ATLAS or MARCS model atmospheres.  See page 10 in the `Synspec manual <_static/syn43guide.pdf>`_ for the format and examples.
 
 2) Linelists
 
-   Synspec requires a specific linelist format.  See pages 20-21 in the `Synspec manual <_static/syn43guide.pdf>`_ for the format.
+   Synspec requires a specific linelist format.  See pages 9-10 in the `Synspec manual <_static/syn43guide.pdf>`_ for the format.
    
 3) Stellar parameters and elemental abundances.
 

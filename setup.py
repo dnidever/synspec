@@ -67,7 +67,7 @@ def compilesynspec():
     bindir = get_bin_path()
         
     # Copy fortran binaries to bin/ directory
-    for f in ['babsma_lu','bsyn_lu']:
+    for f in ['synspec54','rotin','list2bin']:
         if os.path.exists('bin/'+f):
             if os.path.exists(bindir+f): os.remove(bindir+f)
             print('Copying bin/'+f+' -> '+bindir+'/'+f)
@@ -77,6 +77,10 @@ def compilesynspec():
         else:
             print('bin/'+f+' NOT FOUND')
 
+    # Download the linelists and convert to binary
+    print('Downloading linelists')
+    ret = subprocess.run(['make'], cwd='./python/synspec/linelists/', shell=True)
+    
 
 # We need to build Synspec
 if 'install' in sys.argv or 'develop' in sys.argv or 'bdist_wheel' in sys.argv:

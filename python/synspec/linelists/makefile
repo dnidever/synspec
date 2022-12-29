@@ -60,7 +60,7 @@ define sequence
 		head -1 /tmp/$$file >> $$file.00  ; \
 		tail -1 /tmp/$$file >> $$file.00  ; \
 		rm -f $$file.gz ; \
-		../bin/list2bin < /tmp/$$file ; \
+		../../../bin/list2bin < /tmp/$$file ; \
 		mv fort.12 $$file.11 ; \
 		rm -f /tmp/$$file  ; \
 	done

@@ -1,0 +1,6 @@
+include README.rst
+include python/synple/data/*
+include python/synple/models/*
+include python/synple/linelists/*
+
+prune build

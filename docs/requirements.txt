@@ -1,0 +1,8 @@
+numpy
+matplotlib
+astropy-helpers
+astropy
+scipy
+dlnpyutils
+sphinx
+sphinx_astropy

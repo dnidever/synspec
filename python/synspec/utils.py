@@ -19,6 +19,22 @@ def testdir():
     testdir = codedir+'/test/'
     return testdir
 
+# The models directory
+def modelsdir():
+    """ Return the models/ directory."""
+    fil = os.path.abspath(__file__)
+    codedir = os.path.dirname(fil)
+    testdir = codedir+'/models/'
+    return testdir
+
+# The linelists directory
+def linelistsdir():
+    """ Return the linelists/ directory."""
+    fil = os.path.abspath(__file__)
+    codedir = os.path.dirname(fil)
+    testdir = codedir+'/linelists/'
+    return testdir
+
 def readlines(fil=None,comment=None,raw=False,nreadline=None,noblank=False):
     """
     Read in all lines of a file.

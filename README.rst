@@ -10,6 +10,8 @@ Authors
 -------
 
 - **David Nidever** (Montana State University)
+
+I did **not** write most of the code in this repository!
   
 Installation
 ------------
@@ -18,7 +20,7 @@ To install the latest version::
 
     pip install synspec
 
-*NOTE* that this will take a few minutes because it will download large linelist files and convert them from gzipped ASCII to binary format.
+**NOTE(* that this will take a few minutes because it will download large linelist files and convert them from gzipped ASCII to binary format.
     
 Documentation
 -------------

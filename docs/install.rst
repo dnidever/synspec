@@ -32,7 +32,17 @@ full git clone of the repository for this.
 To compile the code you need the GNU Fortran compiler (``gfortran``).
 The Fortran code lives in the `src/` directory.  All you should need to do is to cd into that
 directory and type ``make``.
-Copy the binaries ``synspec54``, ``rotin``, and ``list2bin`` to a directory in your path (e.g., ~/bin/ or /usr/local/bin/).  
+Copy the binaries ``synspec54``, ``rotin``, and ``list2bin`` to a directory in your path (e.g., ~/bin/ or /usr/local/bin/).
+
+Linelists
+---------
+
+The setup script will attempt to automatically download linelists from Carlos Allende Prieto's ftp site.
+This could take a few minutes.  The files should get copied to the directory returned ``utils.linelistsdir()``.
+If this crashes for some reason, then you'll likely want to git clone the full respository and run the
+script yourself.  Go in to the ``synspec/python/synspec/linelists`` directory and type ``make``.  This
+will download the gzipped ASCII linelist files and then convert them to binary.
+
 
 Dependencies
 ============

@@ -31,7 +31,7 @@ and elemental abundances that you want to run.
 
 1) Model Atmospheres
 
-   Synspec can read TLUSTY, Kurucz/ATLAS or MARCS model atmospheres.  See page 10 in the `Synspec manual <_static/syn43guide.pdf>`_ for the format and examples.
+   Synspec can read TLUSTY, Kurucz/ATLAS, MARCS and PHOENIX model atmospheres.  See page 10 in the `Synspec manual <_static/syn43guide.pdf>`_ for the format and examples.
 
 2) Linelists
 

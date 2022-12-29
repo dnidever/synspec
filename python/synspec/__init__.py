@@ -1,2 +1,2 @@
-__all__ = ["utils","atomic","atmos","synthesis"]
-__version__ = '1.0.7'
+__all__ = ["utils","atomic","atmos","models","synthesis"]
+__version__ = '1.0.2'

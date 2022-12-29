@@ -87,7 +87,7 @@ if 'install' in sys.argv or 'develop' in sys.argv or 'bdist_wheel' in sys.argv:
     compilesynspec()
     
 setup(name='synspec',
-      version='1.0.0',
+      version='1.0.2',
       author='David Nidever',
       author_email='dnidever@montana.edu',
       url='https://github.com/dnidever/synspec',

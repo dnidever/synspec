@@ -6,7 +6,7 @@ Installation
 Important packages
 ==================
 `synspec` is a package to run the `Synspec <http://tlusty.oca.eu/Synspec49/synspec.html>`_
-synthesis software by Ivan Hubeny and Thierry Lanz from Carlos Allende-Prieto's `synple <https://github.com/callendeprieto/synple>`_
+synthesis software by Ivan Hubeny and Thierry Lanz from Carlos Allende Prieto's `synple <https://github.com/callendeprieto/synple>`_
 package. There is also a Python wrapper/driver based on the ``synple`` package and some code from Jon Holtzman in the
 in the `APOGEE package <https://github.com/sdss/apogee>`_.
 

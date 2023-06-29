@@ -130,7 +130,7 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
     flux,cont,wave = do_synspec(root,atmod,linelists,mh,am,abundances,wrange,dw,
                                 solarisotopes=solarisotopes)
 
-    os.chdir(cwd)
+    os.chir(cwd)
     if not save:
         shutil.rmtree(workdir)
     else:
@@ -305,9 +305,10 @@ def do_synspec(root,atmod,linelists,mh,am,abundances,wrange,dw=None,
     synout.close()
     synin.close()
 
-    assert (os.path.isfile('fort.7')), 'Error: I cannot read the file *fort.7* in '+tmpdir+' -- looks like synspec has crashed, please look at '+logfile
+    curdir = os.path.abspath('.')
+    assert (os.path.isfile('fort.7')), 'Error: I cannot read the file *fort.7* in '+curdir+' -- looks like synspec has crashed, please look at '+logfile
 
-    assert (os.path.isfile('fort.17')), 'Error: I cannot read the file *fort.17* in '+tmpdir+' -- looks like synspec has crashed, please look at '+logfile
+    assert (os.path.isfile('fort.17')), 'Error: I cannot read the file *fort.17* in '+curdir+' -- looks like synspec has crashed, please look at '+logfile
     
     wave, flux = np.loadtxt('fort.7', unpack=True)
     if np.any(np.diff(wave) <= 0.0):

@@ -130,7 +130,7 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
     flux,cont,wave = do_synspec(root,atmod,linelists,mh,am,abundances,wrange,dw,
                                 solarisotopes=solarisotopes)
 
-    os.chir(cwd)
+    os.chdir(cwd)
     if not save:
         shutil.rmtree(workdir)
     else:

@@ -124,7 +124,7 @@ def read_kurucz_model(modelfile):
     # Get teff and logg from header line
     #  TEFF   3500.  GRAVITY 1.00000 LTE 
     entries = line.split()
-    if (entries[0] == 'TEFF' and entries[2] == 'GRAVITY'):
+    if (entries[0] == 'TEFF' and entries[2] != 'GRAVITY'):
         # logg might be negative with no space
         # TEFF   3500.  GRAVITY-1.50000 LTE
         p1 = entries[2].find('GRAVITY')

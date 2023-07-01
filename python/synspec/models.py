@@ -121,10 +121,22 @@ def read_kurucz_model(modelfile):
 
     f = open(modelfile,'r')
     line = f.readline()
+    # Get teff and logg from header line
+    #  TEFF   3500.  GRAVITY 1.00000 LTE 
     entries = line.split()
-    assert (entries[0] == 'TEFF' and entries[2] == 'GRAVITY'), 'Cannot find Teff and logg in the file header'
-    teff = float(entries[1])
-    logg = float(entries[3])
+    if (entries[0] == 'TEFF' and entries[2] == 'GRAVITY'):
+        # logg might be negative with no space
+        # TEFF   3500.  GRAVITY-1.50000 LTE
+        p1 = entries[2].find('GRAVITY')
+        if p1>-1:
+            logg = float(entries[2][p1+7:])
+        else:
+            raise Exception('Cannot find Teff and logg in the file header')
+    else:
+        teff = float(entries[1])
+        logg = float(entries[3])        
+   # assert (entries[0] == 'TEFF' and entries[2] == 'GRAVITY'), 'Cannot find Teff and logg in the file header'
+
 
     while entries[0] != 'ABUNDANCE':  
         line = f.readline()

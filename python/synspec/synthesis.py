@@ -109,7 +109,9 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
         workdir = tempfile.mkdtemp(prefix='synspec')
     cwd = os.getcwd()
     os.chdir(workdir)
-
+    if verbose:
+        print('Working in',workdir)
+        
     # Create the root name from the input parameters
     root = (atmos_type+'_t{:04d}g{:s}m{:s}a{:s}c{:s}n{:s}v{:s}').format(int(teff), atmos.cval(logg), 
                       atmos.cval(mh), atmos.cval(am), atmos.cval(cm), atmos.cval(nm),atmos.cval(vmicro))
@@ -128,7 +130,7 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
     else:
         spherical = False
     flux,cont,wave = do_synspec(root,atmod,linelists,mh,am,abundances,wrange,dw,
-                                solarisotopes=solarisotopes)
+                                solarisotopes=solarisotopes,verbose=verbose)
 
     os.chdir(cwd)
     if not save:
@@ -259,7 +261,7 @@ def do_synspec(root,atmod,linelists,mh,am,abundances,wrange,dw=None,
         print(modelfile,'is a',atmostype,' model')
         print('teff,logg,vmicro=',teff,logg,vmicro)
         print ('abundances=',abundances)
-        print ('linelist=',linelist)
+        print ('linelists=',linelists)
         print ('wrange=',wrange)
 
     logfile = 'syn.log'

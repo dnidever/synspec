@@ -18,7 +18,7 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
                dospherical=True,linelists=None,solarisotopes=False,workdir=None,
                save=False,verbose=False):
     """
-    Code to synthesize a spectrum with MOOG.
+    Code to synthesize a spectrum with Synspec.
     
     Parameters
     ----------
@@ -82,7 +82,7 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
     if linelists is None:
         linelistdir = utils.linelistsdir()
         linelists = ['gfATO.19.11','gfMOLsun.20.11','gfTiO.20.11','H2O-8.20.11']
-        linelists = [l+linelistdir for l in linelists]
+        linelists = [os.path.join(linelistdir,l) for l in linelists]
         
     # Default abundances
     abundances = atomic.solar()
@@ -115,9 +115,8 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
     # Create the root name from the input parameters
     root = (atmos_type+'_t{:04d}g{:s}m{:s}a{:s}c{:s}n{:s}v{:s}').format(int(teff), atmos.cval(logg), 
                       atmos.cval(mh), atmos.cval(am), atmos.cval(cm), atmos.cval(nm),atmos.cval(vmicro))
-
     # Check that linelists and model atmosphere files exit
-    if type(linelists) is str:
+    if isinstance(linelists,str):
         linelists = [linelists]
     for l in linelists:
         if os.path.exists(l)==False:
@@ -163,7 +162,7 @@ def do_synspec(root,atmod,linelists,mh,am,abundances,wrange,dw=None,
     Parameters
     ----------
     root : str
-       Root of filenames to use for this MOOG run.
+       Root of filenames to use for this Synspec run.
     atmod : str, optional
        Name of atmosphere model (default=None, model is determined from input parameters).
     linelists : list
@@ -224,7 +223,7 @@ def do_synspec(root,atmod,linelists,mh,am,abundances,wrange,dw=None,
     Example
     -------
 
-    flux,cont,wave = do_moog(root,atmod,linefile,-0.1,0.2,abund,wrange=[15000.0,17000.0],dw=0.1)
+    flux,cont,wave = do_synspec(root,atmod,linefile,-0.1,0.2,abund,wrange=[15000.0,17000.0],dw=0.1)
 
     """
 

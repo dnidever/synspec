@@ -100,8 +100,16 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
     # Abundance overrides from els, given as [X/M]
     if elems is not None :
         for el in elems:
-            atomic_num = atomic.periodic(el[0])
-            abundances[atomic_num-1] = atomic.solar(el[0]) + mh + el[1]
+            aname = el[0]
+            # make sure the first character is capitalized
+            if len(aname)==1:
+                aname = aname.upper()
+            else:
+                aname = aname[0].upper()+aname[1:]
+            atomic_num = atomic.periodic(aname)
+            if len(atomic_num)==0:
+                raise Exception(aname+' not understood')
+            abundances[atomic_num-1] = atomic.solar(aname) + mh + el[1]
     # Cap low abundances at -5.0
     #   that's what MOOG uses internally for the solar abundances
     for i in range(len(abundances)):
@@ -129,7 +137,7 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
             raise FileNotFoundError(l)
     if os.path.exists(atmod)==False:
         raise FileNotFoundError(atmod)
-
+    
     if dospherical and ('marcs' in atmos_type) and logg <= 3.001:
         spherical= True
     else:

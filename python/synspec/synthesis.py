@@ -6,6 +6,9 @@ import tempfile
 import time
 from . import utils, atomic, atmos, models
 
+# The core of this code is from Carlos Allende Prieto's synple package
+#  https://github.com/callendeprieto/synple
+
 clight = 299792.458
 epsilon = 0.6 #clv coeff.
 bolk = 1.38054e-16  # erg/ K
@@ -14,7 +17,7 @@ one =  " 1 "
 two =  " 2 "
 
 def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
-               wrange=[15000.0,17000.0],dw=0.1,atmod=None,atmos_type='kurucz',
+               wrange=[15000.0,17000.0],dw=0.1,fwhm=0.0,atmod=None,atmos_type='kurucz',
                dospherical=True,linelists=None,solarisotopes=False,workdir=None,
                save=False,verbose=False):
     """
@@ -44,6 +47,9 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
        Two element wavelength range in A.  Default is [15000.0,17000.0].
     dw : float, optional
        Wavelength step.  Default is 0.1 A.
+    fwhm : float, optional
+       Gaussian broadening: macroturbulence, instrumental, etc. (Angstroms).
+         Default is 0.0.
     atmod : str, optional
        Name of atmosphere model (default=None, model is determined from input parameters).
     atmos_type : str, optional
@@ -129,7 +135,7 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
     else:
         spherical = False
     flux,cont,wave = do_synspec(root,atmod,linelists,mh,am,abundances,wrange,dw,
-                                solarisotopes=solarisotopes,verbose=verbose)
+                                solarisotopes=solarisotopes,fwhm=fwhm,verbose=verbose)
 
     os.chdir(cwd)
     if not save:
@@ -145,8 +151,8 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
 
 def do_synspec(root,atmod,linelists,mh,am,abundances,wrange,dw=None,
                solarisotopes=False,spherical=True,vmicro=2.0,vrot=0.0,
-               fwhm=0.0,vmacro=0.0,atom='ap18',strength=1e-4,
-               lte=None,verbose=False):
+               fwhm=0.0,vmacro=0.0,steprot=0.0,stepfwhm=0.0,atom='ap18',
+               strength=1e-4,lte=None,verbose=False):
     """
     Runs Synspec for specified input parameters.
 
@@ -324,7 +330,8 @@ def do_synspec(root,atmod,linelists,mh,am,abundances,wrange,dw=None,
 
 
     if fwhm > 0. or vrot > 0. or vmacro > 0.:
-        print(vrot, fwhm, vmacro, space, steprot, stepfwhm)
+        if verbose:
+            print(vrot, fwhm, vmacro, space, steprot, stepfwhm)
         wave, flux = call_rotin(wave, flux, vrot, fwhm, vmacro,
                                 space, 0.0, 0.0, clean=False,
                                 reuseinputfiles=True, logfile=logfile)
@@ -680,13 +687,13 @@ def call_rotin(wave=None, flux=None, vrot=0.0, fwhm=0.0, vmacro=0.0,
     f.write( ' %s %s %s \n' % ("'fort.7'", "'fort.17'", "'fort.11'") )
     f.write( ' %f %f %f \n' % (vrot, space, steprot) )
     f.write( ' %f %f %f \n' % (fwhm, stepfwhm, vmacro) )
-    print('stepfwhm=',stepfwhm)
+    #print('stepfwhm=',stepfwhm)
     f.write( ' %f %f %i \n' % (np.min(wave), np.max(wave), 0) )
     f.close()
 
     synin = open('fort.5')
     synout = open(logfile,'a')
-    p = subprocess.Popen([rotin], stdin=synin, stdout = synout, stderr = synout)
+    p = subprocess.Popen(['rotin'], stdin=synin, stdout = synout, stderr = synout)
     p.wait()
     synout.flush()
     synout.close()
@@ -695,7 +702,7 @@ def call_rotin(wave=None, flux=None, vrot=0.0, fwhm=0.0, vmacro=0.0,
     assert (os.path.isfile('fort.11')), 'Error: I cannot read the file *fort.11* in '+os.getcwd()+' -- looks like rotin has crashed, please look at syn.log'
 
     wave2, flux2 = np.loadtxt('fort.11', unpack=True)
-    print(len(wave),len(wave2))
+    #print(len(wave),len(wave2))
   
     if clean == True: cleanup_fort()
 

@@ -1,6 +1,10 @@
 import os
 import numpy as np
 
+clight = 299792.458
+epsilon = 0.6       # clv coeff.
+bolk = 1.38054e-16  # erg/ K
+
 def read_model(modelfile,verbose=False):
     """
     Reads a model atmosphere into a structure

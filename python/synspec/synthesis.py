@@ -42,7 +42,7 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
     solarisotopes : bool, optional
        Use solar isotope ratios, else "giant" isotope ratios ( default False ).
     elems : list, optional
-       List of [element name, abundance] pairs.
+       List of [element name, abundance] pairs.  The abundance is in [X/M].
     wrange : list, optional
        Two element wavelength range in A.  Default is [15000.0,17000.0].
     dw : float, optional
@@ -142,6 +142,9 @@ def synthesize(teff,logg,mh=0.0,am=0.0,cm=0.0,nm=0.0,vmicro=2.0,elems=None,
         spherical= True
     else:
         spherical = False
+    if verbose:
+        print('Using linelists:')
+        print(linelists)
     flux,cont,wave = do_synspec(root,atmod,linelists,mh,am,abundances,wrange,dw,
                                 solarisotopes=solarisotopes,fwhm=fwhm,verbose=verbose)
 

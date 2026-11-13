@@ -44,3 +44,17 @@ For each successful run the script records wall-clock time, exit status, stdout/
 - Later phases: instrument `RESOLV`, `LINOP`, `MOLOP`, `VOIGTK`, `RTE` and `RTEDFE`; investigate line-opacity and SIMD changes as separate commits.
 - Record processor, compiler version, options, code commit, atmosphere, linelists, wavelength interval, runtime, and spectra checksums.
 - Current measured results are linked above. Earlier Voigt microbenchmark numbers from a separate machine are not full-SYNSPEC benchmarks.
+
+
+## Vectorization comparison on the improved code
+
+[Vectorization results](VECTORIZATION_RESULTS.md) compare strict-math O2, O3, native tuning, and an O3/no-vectorization control. All 66 non-reference output comparisons match O2 at printed precision. The timings are noisy and workload-dependent, so production compiler defaults remain unchanged. The principal molecular profile loop still does not vectorize because of control flow.
+
+To reproduce with externally prepared input decks:
+
+```sh
+python3 benchmarks/compare_vectorization.py --case-manifest /path/to/cases.json --wide-case /path/to/wide-case --output results/vectorization
+python3 benchmarks/analyze_vectorization.py --results results/vectorization
+```
+
+The manifest is a JSON array containing `name` and `case` directory keys. NumPy is needed for analysis. On this Mac, `--compiler` selects the local SDK wrapper and `--runtime-library-dir` selects the matching Fortran runtime directory. Use a new output directory for a fresh run. `--reuse-builds` only accepts binaries whose recorded source, compiler version, platform and flags match; it does not overwrite existing case directories.

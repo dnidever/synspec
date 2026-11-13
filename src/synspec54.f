@@ -18587,6 +18587,7 @@ C
       INCLUDE 'SYNTHP.FOR'
       INCLUDE 'LINDAT.FOR'
       INCLUDE 'MOLCACHE.FOR'
+      COMMON/PRFQUA/DOPA1(MATOM,MDEPTH),VDWC(MDEPTH)
       PARAMETER (MVOI=2001)
       COMMON/VOITAB/H0TAB(MVOI),H1TAB(MVOI),H2TAB(MVOI)
       PARAMETER (UN     = 1., 
@@ -18661,8 +18662,15 @@ C     List reloads invalidate all factors, even at unchanged T.
          IL=INMLIN(I,ILIST)
          IMOL=INDATM(IL,ILIST)
          DOP1=DOPMOL(IMOL,ID)
-         AGAM=(GRM(IL,ILIST)+GSM(IL,ILIST)*ANE+
-     *         GVDW(IL,ILIST,ID))*DOP1
+C        Standard broadening needs one multiply, not a function call.
+C        Keep the EXOMOL path and its full temperature law unchanged.
+         IF(IVDWLI(ILIST).EQ.0) THEN
+            AGAM=(GRM(IL,ILIST)+GSM(IL,ILIST)*ANE+
+     *            GWM(IL,ILIST)*VDWC(ID))*DOP1
+         ELSE
+            AGAM=(GRM(IL,ILIST)+GSM(IL,ILIST)*ANE+
+     *            GVDW(IL,ILIST,ID))*DOP1
+         END IF
          FR0=FREQM(IL,ILIST)
          IF(LCACHED) THEN
             AB0=BCACHE(ILIST)%FACTOR(IL,ID)*RRMOL(IMOL,ID)*

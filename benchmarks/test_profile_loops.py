@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise real MOLOP/VOIGTK with synthetic tables and bounds/FP checks."""
+"""Exercise real MOLOP/VOIGTK/GVDW with synthetic tables and bounds/FP checks."""
 import argparse
 from pathlib import Path
 import subprocess, tempfile, os, sys
@@ -27,7 +27,9 @@ def main():
     end=ref.index('\n      END\n',start)+len('\n      END\n')
     with tempfile.TemporaryDirectory(prefix='profile-regression-') as t:
         t=Path(t)
-        (t/'reference.f').write_text(routine(ref,'MOLOP').replace('SUBROUTINE MOLOP(', 'SUBROUTINE MOLOP_REF(',1)+'\n'+ref[start:end])
+        gs=ref.lower().index('      function gvdw(')
+        ge=ref.lower().index('\n      end\n',gs)+len('\n      end\n')
+        (t/'reference.f').write_text(routine(ref,'MOLOP').replace('SUBROUTINE MOLOP(', 'SUBROUTINE MOLOP_REF(',1)+'\n'+ref[start:end]+'\n'+ref[gs:ge])
         (t/'candidate.f').write_text(routine(cur,'MOLOP')+'\n'+cur[cur.index('      SUBROUTINE MOLBCLR('):])
         flags=['-fno-automatic','-O2','-fcheck=all','-ffpe-trap=invalid,zero,overflow']
         if sys.platform.startswith('linux'):flags.append('-mcmodel=medium')

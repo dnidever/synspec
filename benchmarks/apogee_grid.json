@@ -1,0 +1,9 @@
+{
+  "teff_bounds_k": [2800, 5500],
+  "logg_bounds_cgs": [-0.5, 3.0],
+  "fe_h_bounds_dex": [-1.0, 0.5],
+  "wavelength_angstrom": [15000, 17000],
+  "benchmark_sampling_control_angstrom": 0.04,
+  "production_sampling_specified": false,
+  "notes": "User-specified grid target. Bounds are not a list of tested models; the 2800 K model is an edge test. The 0.04 A sampling control is retained from earlier benchmarks, not supplied as a production-grid requirement."
+}

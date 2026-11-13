@@ -2,9 +2,17 @@
 
 This directory contains **non-production**, reproducible optimization experiments. The `main` branch and the existing `src/makefile` are intentionally unchanged.
 
+## APOGEE optimization target
+
+Prioritize full 15000–17000 Å syntheses for Teff 2800–5500 K, log g −0.5 to 3.0, and [Fe/H] −1 to +0.5. The user-specified bounds and current benchmark sampling control are recorded in [apogee_grid.json](apogee_grid.json); boundary models are included as stress tests. The production sampling was not specified, so 0.04 Å remains a benchmark control rather than a production requirement.
+
+[APOGEE_GRID_RESULTS.md](APOGEE_GRID_RESULTS.md) documents the latest full-band comparisons, actual MARCS boundary/near-boundary models, and the accepted standard-broadening shortcut. It avoids a general GVDW call for the standard width expression, preserves the EXOMOL path, and adds no large per-line storage. The fully vectorized core/wing partition was slower and was not adopted.
+
+Prepare a deck outside the checkout with `prepare_apogee_case.py --model /path/to/model.mod --linelist-dir /path/to/converted-dr17-lists --output /path/to/new-case`. The builder hashes inputs and records actual header parameters, including whether an input is a .filled substitute. It preserves the supplied atmosphere and abundances; it does not interpolate missing grid points.
+
 ## Current results and code changes
 
-The optimization branch now includes three bounds corrections (HYDLIN population storage, STATE0 ionization initialization, and explicit-atom abundance factors), a molecular Voigt fast path, and binary lookup of hydrogen profile intervals. The large molecular exponential cache is **disabled by default**; `SYNSPEC_MOL_CACHE=1` enables the experimental 256 MiB capped cache.
+The optimization branch now includes three bounds corrections (HYDLIN population storage, STATE0 ionization initialization, and explicit-atom abundance factors), a molecular Voigt fast path, binary lookup of hydrogen profile intervals, and a standard molecular-broadening fast path. The large molecular exponential cache is **disabled by default**; `SYNSPEC_MOL_CACHE=1` enables the experimental 256 MiB capped cache.
 
 On one 3500 K giant / 1,000 Å DR17 case, O2 reduced synthesis time by roughly 2–2.7× relative to no optimization. The low-memory profile changes then reduced O2 wall time by about 13%, with no material peak-memory increase. These are measured case-specific results, not full-grid guarantees. Four additional atmospheres and H-band/H-beta windows produced identical finite printed spectra in 24 baseline/improved comparison pairs; short-window timing changes ranged from about 4% faster to 3% slower.
 
@@ -17,7 +25,7 @@ python3 benchmarks/test_profile_loops.py
 python3 benchmarks/test_hydrogen_search.py
 ```
 
-Use `--compiler` when a compiler wrapper is needed (for example, to find the installed macOS SDK). The molecular test uses the committed, immutable pre-optimization routines in `reference_molop_voigt.f`, so its numerical oracle stays independent after commits. The tests use controlled tables and a broadening stub; full physical comparisons are documented separately. An all-application bounds-clean claim is not made: the legacy INTERP length-one dummy-array declarations remain a limitation of global bounds checks.
+Use `--compiler` when a compiler wrapper is needed (for example, to find the installed macOS SDK). The molecular test uses the committed, immutable pre-optimization routines in `reference_molop_voigt.f`, so its numerical oracle stays independent after commits. The tests use synthetic profile tables and initialized broadening parameters; full physical comparisons are documented separately. An all-application bounds-clean claim is not made: the legacy INTERP length-one dummy-array declarations remain a limitation of global bounds checks.
 
 ## Initial experiment: compiler flags
 

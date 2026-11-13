@@ -105,3 +105,36 @@ c     IF(A+V.GT.C32) GO TO 10
       END IF
       RETURN
       END
+
+      function gvdw(il,ilist,id)
+c     ==========================
+c
+c     evaluation of the Van der Waals broadening parameter
+c
+c     currently, two possibilities, determined by the value of the parameter
+c     ivdwli(ilist) - the mode of evaluation is the same for the whole line list
+c       = 0 - standard expression
+c       > 0 - evaluation using EXOMOL data, assuming breadening by H2 and He
+c
+      INCLUDE 'PARAMS.FOR'
+      INCLUDE 'MODELP.FOR'
+      INCLUDE 'LINDAT.FOR'
+      COMMON/PRFQUA/DOPA1(MATOM,MDEPTH),VDWC(MDEPTH)
+c
+c     clasical, original expression
+c
+      if(ivdwli(ilist).eq.0) then
+         gvdw=gwm(il,ilist)*vdwc(id)
+         return
+      end if
+c
+c     EXOMOL form - broadening by H2 and He
+c
+c     con= 1.e-6*c*k
+      con=4.1388e-12
+      t=temp(id)
+      anhe=rrr(id,1,2)
+      gvdw=con*t*((296./t)**gexph2(il,ilist)*gvdwh2(il,ilist)*anh2(id)+
+     *            (296./t)**gexphe(il,ilist)*gvdwhe(il,ilist)*anhe)
+      return
+      end

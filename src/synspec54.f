@@ -1711,8 +1711,8 @@ C
            IF(I.GT.8.and.i.le.30) IONIZ(I)=9
          END IF
 C
-         DO J=1,9
-            IF(J.LE.8) ENEV(I,J)=xi(J,I)
+         DO J=1,MI1
+            ENEV(I,J)=xi(J,I)
             if(enev(i,j).ge.enhe2) then
                inpot(i,j)=3
              else if(enev(i,j).ge.enhe1) then
@@ -1721,6 +1721,8 @@ C
                inpot(i,j)=1
             end if
          END DO
+C        The highest ion stage uses the last available threshold.
+         INPOT(I,MION0)=INPOT(I,MI1)
          IF(MA.GT.0) THEN    
             LGR(I)=.FALSE.
             IF(ABN.GT.0) ABND(I)=ABN
@@ -1773,7 +1775,8 @@ C
       DO ID=1,ND
          WMM(ID)=WMY(ID)*HMASS/YTOT(ID)
       END DO
-      DO JJ=1,NATOMS
+C     RELAB is indexed by explicit atom, not chemical element.
+      DO JJ=1,MATEX
          DO ID=1,ND
             RELAB(JJ,ID)=1.
          END DO
@@ -5431,7 +5434,8 @@ C
       common/quasun/nunalp,nunbet,nungam,nunbal
       common/hhebrd/sthe,nunhhe
       common/gompar/hglim,ihgom
-      DIMENSION PJ(40),PRF0(54),OSCH(4,22),
+C     The population initialization below fills levels 1 through 50.
+      DIMENSION PJ(50),PRF0(54),OSCH(4,22),
      *          ABSO(MFREQ),EMIS(MFREQ),ABSOH(MFREQ),EMISH(MFREQ)
       dimension wlir(15),irlow(15),irupp(15)
       DATA FRH    /3.289017E15/
@@ -5625,11 +5629,19 @@ c
                IF(AL.LT.1.E-4) AL=1.E-4
                IF(ILEMKE.EQ.1) AL=AL/F00
                AL=LOG10(AL)
-               DO IWL=1,NWL-1
-                  IW0=IWL
-                  IF(AL.LE.WLHYD(ILINE,IWL+1)) GO TO 40
+C              First tabulated upper endpoint >= AL; clamp tails.
+               ILO=2
+               IHI=NWL
+               DO WHILE(ILO.LT.IHI)
+                  IMID=(ILO+IHI)/2
+                  IF(AL.LE.WLHYD(ILINE,IMID)) THEN
+                     IHI=IMID
+                  ELSE
+                     ILO=IMID+1
+                  END IF
                END DO
-   40          IW1=IW0+1
+               IW0=ILO-1
+               IW1=IW0+1
                PRFF=(PRF0(IW0)*(WLHYD(ILINE,IW1)-AL)+PRF0(IW1)*
      *             (AL-WLHYD(ILINE,IW0)))/
      *             (WLHYD(ILINE,IW1)-WLHYD(ILINE,IW0))
@@ -17988,6 +18000,7 @@ C
 C
 c      DATA INLSET /0/
 C
+      CALL MOLBCLR(ILIST)
       if(imode.ne.-3.and.temp(idstd).gt.tmolim) return
       IUNIT=IUNITM(ILIST)
 
@@ -18573,6 +18586,10 @@ C
       INCLUDE 'MODELP.FOR'
       INCLUDE 'SYNTHP.FOR'
       INCLUDE 'LINDAT.FOR'
+      INCLUDE 'MOLCACHE.FOR'
+      COMMON/PRFQUA/DOPA1(MATOM,MDEPTH),VDWC(MDEPTH)
+      PARAMETER (MVOI=2001)
+      COMMON/VOITAB/H0TAB(MVOI),H1TAB(MVOI),H2TAB(MVOI)
       PARAMETER (UN     = 1., 
      *           EXT0   = 3.17,
      *           TEN    = 10.)
@@ -18589,17 +18606,80 @@ C
 C
 C     overall loop over contributing lines
 C
+C     Keep the memory-intensive experiment opt-in.
+      IF(.NOT.BREAD) THEN
+         BOPTION=' '
+         CALL GET_ENVIRONMENT_VARIABLE('SYNSPEC_MOL_CACHE',BOPTION,
+     *        STATUS=BSTATUS)
+         BENABLED=BSTATUS.EQ.0.AND.TRIM(BOPTION).EQ.'1'
+         BREAD=.TRUE.
+      END IF
       TEM1=UN/TEMP(ID)
+      LCACHED=.FALSE.
+      IF(BENABLED) THEN
+C     List reloads invalidate all factors, even at unchanged T.
+      IF(BCACHE(ILIST)%GENERATION.NE.BGEN(ILIST).OR.
+     *   BCACHE(ILIST)%NLINES.NE.NLINM0(ILIST).OR.
+     *   BCACHE(ILIST)%NDEPTH.NE.ND) THEN
+         IF(ALLOCATED(BCACHE(ILIST)%FACTOR)) THEN
+            DEALLOCATE(BCACHE(ILIST)%FACTOR)
+            DEALLOCATE(BCACHE(ILIST)%TDEP)
+            BUSED=BUSED-BCACHE(ILIST)%NBYTES
+         END IF
+         BCACHE(ILIST)%NBYTES=0
+         BCACHE(ILIST)%NLINES=NLINM0(ILIST)
+         BCACHE(ILIST)%NDEPTH=ND
+         BCACHE(ILIST)%GENERATION=BGEN(ILIST)
+         BNEED=(INT(NLINM0(ILIST),8)+1_8)*INT(ND,8)*8_8
+         IF(BNEED.LE.BMAX-BUSED) THEN
+            ALLOCATE(BCACHE(ILIST)%FACTOR(NLINM0(ILIST),ND),
+     *               BCACHE(ILIST)%TDEP(ND),STAT=BALLOC)
+            IF(BALLOC.EQ.0) THEN
+               BCACHE(ILIST)%TDEP=-1.D0
+               BCACHE(ILIST)%NBYTES=BNEED
+               BUSED=BUSED+BNEED
+            ELSE
+               IF(ALLOCATED(BCACHE(ILIST)%FACTOR))
+     *            DEALLOCATE(BCACHE(ILIST)%FACTOR)
+               IF(ALLOCATED(BCACHE(ILIST)%TDEP))
+     *            DEALLOCATE(BCACHE(ILIST)%TDEP)
+            END IF
+         END IF
+      END IF
+      LCACHED=ALLOCATED(BCACHE(ILIST)%FACTOR)
+      IF(LCACHED) THEN
+         IF(BCACHE(ILIST)%TDEP(ID).NE.TEMP(ID)) THEN
+            DO K=1,NLINM0(ILIST)
+               BCACHE(ILIST)%FACTOR(K,ID)=
+     *            EXP(GFM(K,ILIST)-EXCLM(K,ILIST)*TEM1)
+            END DO
+            BCACHE(ILIST)%TDEP(ID)=TEMP(ID)
+         END IF
+      END IF
+      END IF
       ANE=ELEC(ID)
       DO I=1,NLINML(ILIST)
          IL=INMLIN(I,ILIST)
          IMOL=INDATM(IL,ILIST)
          DOP1=DOPMOL(IMOL,ID)
-         AGAM=(GRM(IL,ILIST)+GSM(IL,ILIST)*ANE+
-     *         GVDW(IL,ILIST,ID))*DOP1
+C        Standard broadening needs one multiply, not a function call.
+C        Keep the EXOMOL path and its full temperature law unchanged.
+         IF(IVDWLI(ILIST).EQ.0) THEN
+            AGAM=(GRM(IL,ILIST)+GSM(IL,ILIST)*ANE+
+     *            GWM(IL,ILIST)*VDWC(ID))*DOP1
+         ELSE
+            AGAM=(GRM(IL,ILIST)+GSM(IL,ILIST)*ANE+
+     *            GVDW(IL,ILIST,ID))*DOP1
+         END IF
          FR0=FREQM(IL,ILIST)
-         AB0=EXP(GFM(IL,ILIST)-EXCLM(IL,ILIST)*TEM1)*RRMOL(IMOL,ID)*
-     *           DOP1*STIM(ID)
+         IF(LCACHED) THEN
+            AB0=BCACHE(ILIST)%FACTOR(IL,ID)*RRMOL(IMOL,ID)*
+     *          DOP1*STIM(ID)
+         ELSE
+C           Oversized lists or allocation failure use the original path.
+            AB0=EXP(GFM(IL,ILIST)-EXCLM(IL,ILIST)*TEM1)*
+     *          RRMOL(IMOL,ID)*DOP1*STIM(ID)
+         END IF
 C
 C        set up limiting frequencies where the line I is supposed to
 C        contribute to the opacity 
@@ -18612,10 +18692,25 @@ C
          IJ1=int(MAX(float(IJCMTR(I,ILIST))-XIJEXT,3.))
          IJ2=int(MIN(float(IJCMTR(I,ILIST))+XIJEXT,float(NFREQS)))
          IF(IJ1.LT.NFREQ.AND.IJ2.GT.2) THEN
+C           Damping is fixed for this line/depth, not each frequency.
+            IF(AGAM.LT.0.2) THEN
+               DO IJ=IJ1,IJ2
+                  XF=ABS(FREQ(IJ)-FR0)*DOP1
+                  IF(XF.LE.10.) THEN
+                     IV=INT(XF*200.+1.5)
+                     VPROF=(H2TAB(IV)*AGAM+H1TAB(IV))*AGAM+
+     *                     H0TAB(IV)
+                  ELSE
+                     VPROF=0.5642*AGAM/(XF*XF)
+                  END IF
+                  ABLIN(IJ)=ABLIN(IJ)+AB0*VPROF
+               END DO
+            ELSE
             DO IJ=IJ1,IJ2
                XF=ABS(FREQ(IJ)-FR0)*DOP1
                ABLIN(IJ)=ABLIN(IJ)+AB0*VOIGTK(AGAM,XF)
             END DO
+            END IF
          END IF
       END DO
 C
@@ -23848,3 +23943,20 @@ c 631   format('irwpf',f10.1,2i5,f16.3)
 C
 C =========================================================================
 
+
+      SUBROUTINE MOLBCLR(ILIST)
+      INCLUDE 'PARAMS.FOR'
+      INCLUDE 'LINDAT.FOR'
+      INTEGER*8 BGEN(MMLIST)
+      COMMON/MOLBGEN/BGEN
+      BGEN(ILIST)=BGEN(ILIST)+1_8
+      RETURN
+      END
+C
+      BLOCK DATA MOLBINIT
+      INCLUDE 'PARAMS.FOR'
+      INCLUDE 'LINDAT.FOR'
+      INTEGER*8 BGEN(MMLIST)
+      COMMON/MOLBGEN/BGEN
+      DATA BGEN/MMLIST*0/
+      END

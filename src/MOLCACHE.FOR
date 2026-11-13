@@ -1,0 +1,20 @@
+C     Per-list cache, capped at 256 MiB across all molecular lists.
+C     Only the temperature-dependent exponential is retained.
+      TYPE BOLCACHE
+         DOUBLE PRECISION, ALLOCATABLE :: FACTOR(:,:), TDEP(:)
+         INTEGER :: NLINES=0, NDEPTH=0
+         INTEGER*8 :: GENERATION=-1, NBYTES=0
+      END TYPE BOLCACHE
+      TYPE(BOLCACHE), SAVE :: BCACHE(MMLIST)
+      INTEGER*8 BGEN(MMLIST), BNEED, BMAX, BUSED
+      PARAMETER (BMAX=268435456_8)
+      COMMON/MOLBGEN/BGEN
+      SAVE BUSED
+      DATA BUSED/0/
+      INTEGER BALLOC
+      LOGICAL LCACHED
+      CHARACTER*8 BOPTION
+      INTEGER BSTATUS
+      LOGICAL BENABLED, BREAD
+      SAVE BENABLED, BREAD
+      DATA BENABLED/.FALSE./, BREAD/.FALSE./

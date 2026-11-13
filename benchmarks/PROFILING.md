@@ -16,4 +16,4 @@ The case directory is copied into `results/gprof-<timestamp>/run`. If the input 
 
 **Next phase:** add optional wall/CPU timers at explicit phase boundaries (atmosphere load, line selection, opacity, atomic and molecular line opacity, transfer, output), and measure initial model setup versus per-abundance variation. Confirm that diagnostic output and counters do not change the synthesized spectrum. This script does not alter the Fortran source.
 
-No actual full-program profiling results have been produced by this script yet.
+The GNU gprof script has not yet produced a full-program profile in this macOS environment. Actual macOS sampling and explicit CPU/wall stage-timer results are documented in O2_STAGE_PROFILE.md and BROADER_VALIDATION.md.

@@ -28,7 +28,7 @@ all:  compile install
 
 compile: synspec54 rotin list2bin
 
-synspec54: synspec54.f  LINDAT.FOR  MODELP.FOR  PARAMS.FOR  SYNTHP.FOR  WINCOM.FOR
+synspec54: synspec54.f MOLCACHE.FOR LINDAT.FOR  MODELP.FOR  PARAMS.FOR  SYNTHP.FOR  WINCOM.FOR
 	${F90}  ${OPT} synspec54.f -o synspec54
 
 rotin: rotin.f

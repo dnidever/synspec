@@ -29,3 +29,10 @@ After preparation, generate a real synthesis input deck via `python/synspec/synt
 Do not publish the source FTP credentials in generated logs. The upstream Makefiles contain a historical FTP login already available publicly; this script stores only the source URL in the manifest, so review/redact any private alternative mirror URLs before sharing.
 
 Do not use downloaded files as a scientifically authoritative HGE line list without validating data versions, line-list formatting and license/access permissions.
+
+
+## Official DR17 source used in local validation
+
+The public [SDSS DR17 SYNSPEC directory](https://dr17.sdss.org/sas/dr17/apogee/spectro/speclib/linelists/synspec/) supplies `synspec.20200921nlte.atoms`, `synspec.20200921nltegiant.molec`, and `synspec.h2o-BC8.5V.molec`. These are plain text, not the gzipped filenames expected by the FTP preparation helper. Local downloads were verified against SDSS's SHA-1 manifest and converted separately; no large files are in Git.
+
+The atomic records are 103 characters, while the original converter reads only 102 characters of the first record and therefore detects the wrong format. The experimental `benchmarks/list2bin_dr17.f` expands that buffer. The atomic source also has a nonnumeric `s` damping field on row 33407, which the existing conversion error handler skips; the provisional binary therefore has 51,260 rather than 51,261 records. This data issue is unresolved and the benchmark must not be mistaken for an authoritative production line-list preparation. General-purpose lists were used for the broader optical/H-band matrix. See DR17_LOCAL_RESULTS.md and BROADER_VALIDATION.md.
